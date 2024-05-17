@@ -4,7 +4,8 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faRotateLeft } from '@fortawesome/free-solid-svg-icons'
 
-// const startpositionx = [], startpositiony = [], endpositionx = [], endpositiony = [];
+let startpositionx = [], startpositiony = [], endpositionx = [], endpositiony = [];
+const singlestroke = [];
 function Touch() {
     const canva = useRef(null);
     const contextref = useRef(null);
@@ -23,15 +24,12 @@ function Touch() {
         contextref.current = context;
     }, [])
     function startsign({ nativeEvent }) {
-        // console.log(nativeEvent)
         const { offsetX, offsetY } = nativeEvent
         contextref.current.beginPath();
         contextref.current.moveTo(offsetX, offsetY);
         setIsDrawing(true);
-        // console.log(offsetX)
-        // startpositionx.push(offsetX)
-        // startpositiony.push(offsetY)
-        // console.log(startpositionx)
+        startpositionx.push(offsetX)
+        startpositiony.push(offsetY)
     }
     function signing({ nativeEvent }) {
         if (!isDrawing)
@@ -39,36 +37,59 @@ function Touch() {
         const { offsetX, offsetY } = nativeEvent
         contextref.current.lineTo(offsetX, offsetY);
         contextref.current.stroke();
-        // startpositionx.push(offsetX)
-        // startpositiony.push(offsetY)
-        // endpositionx.push(offsetX)
-        // endpositiony.push(offsetY)
+        startpositionx.push(offsetX)
+        startpositiony.push(offsetY)
+        endpositionx.push(offsetX)
+        endpositiony.push(offsetY)
     }
     function endsign({ nativeEvent }) {
         const { offsetX, offsetY } = nativeEvent;
         setIsDrawing(false);
         contextref.current.closePath();
-        // endpositionx.push(offsetX);
-        // endpositiony.push(offsetY);
+        endpositionx.push(offsetX);
+        endpositiony.push(offsetY);
+        singlestroke.push({
+            startx: startpositionx,
+            starty: startpositiony,
+            endx: endpositionx,
+            endy: endpositiony
+        })
+        // if(singlestroke[singlestroke.length-1]==singlestroke[singlestroke.length-2])
+        //     singlestroke.pop()
+        startpositionx = [];
+        startpositiony = [];
+        endpositionx = [];
+        endpositiony = [];
+        console.log(singlestroke)
     }
     function clear() {
         contextref.current.clearRect(0, 0, canva.current.width, canva.current.height)
     }
-    function undo(){
-    //     startpositionx.pop();
-    //     startpositiony.pop();
-    //     endpositionx.pop();
-    //     endpositiony.pop();
-    //     clear();
-    //     console.log(startpositionx);
-    //     for(let i=0;i<startpositionx.length;i++)
-    //         {
-    //             contextref.current.beginPath();
-    //             contextref.current.moveTo(startpositionx[i],startpositiony[i]);
-    //             contextref.current.lineTo(endpositionx[i],endpositiony[i]);
-    //             contextref.current.stroke();
-    //             contextref.current.closePath();
-    //         }
+    function undo() {
+        singlestroke.pop();
+        clear();
+        console.log(singlestroke)
+        // console.log(startpositionx);
+       let v=singlestroke.length-1;
+            while(singlestroke[v].startx.length==1)
+                {
+                    singlestroke.pop();
+                    v--;
+                }
+        for (let i = 0; i < singlestroke.length; i++) {
+            const sx = singlestroke[i].startx;
+            const sy = singlestroke[i].starty;
+            const ex = singlestroke[i].endx;
+            const ey = singlestroke[i].endy;
+            contextref.current.beginPath();
+            contextref.current.moveTo(sx[0], sy[0]);
+            for (let j = 1; j < sx.length; j++) {
+                contextref.current.lineTo(ex[j], ey[j]);
+                contextref.current.stroke();
+            }
+
+            contextref.current.closePath();
+        }
     }
 
     return (
