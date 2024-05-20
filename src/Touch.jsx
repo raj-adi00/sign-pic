@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-// import { faHouse } from '@awesome.me/kit-KIT_CODE/icons/classic/solid'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faRotateLeft } from '@fortawesome/free-solid-svg-icons'
+import { faTrash, faRotateLeft ,faRotateRight } from '@fortawesome/free-solid-svg-icons'
 
 let startpositionx = [], startpositiony = [], endpositionx = [], endpositiony = [];
-const singlestroke = [];
+let singlestroke = [];
+let remvedstroke=[];
 function Touch() {
     const canva = useRef(null);
     const contextref = useRef(null);
+    const download=useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
     useEffect(() => {
         const canvas = canva.current;
@@ -22,8 +22,12 @@ function Touch() {
         context.strokeStyle = "black";
         context.lineWidth = 5;
         contextref.current = context;
+        // context.globalCompositeOperation='destination-over';
+        // context.fillStyle='White';
+        // context.fillRect(0,0,canvas.width,canvas.height);
     }, [])
     function startsign({ nativeEvent }) {
+        remvedstroke=[];
         const { offsetX, offsetY } = nativeEvent
         contextref.current.beginPath();
         contextref.current.moveTo(offsetX, offsetY);
@@ -54,8 +58,6 @@ function Touch() {
             endx: endpositionx,
             endy: endpositiony
         })
-        // if(singlestroke[singlestroke.length-1]==singlestroke[singlestroke.length-2])
-        //     singlestroke.pop()
         startpositionx = [];
         startpositiony = [];
         endpositionx = [];
@@ -63,13 +65,17 @@ function Touch() {
         console.log(singlestroke)
     }
     function clear() {
+        singlestroke=[];
+        remvedstroke=[];
         contextref.current.clearRect(0, 0, canva.current.width, canva.current.height)
     }
     function undo() {
+        if(singlestroke.length==0)
+            return;
+        remvedstroke.push(singlestroke[singlestroke.length-1]);
         singlestroke.pop();
-        clear();
+        contextref.current.clearRect(0, 0, canva.current.width, canva.current.height)
         console.log(singlestroke)
-        // console.log(startpositionx);
        let v=singlestroke.length-1;
             while(singlestroke[v].startx.length==1)
                 {
@@ -91,15 +97,52 @@ function Touch() {
             contextref.current.closePath();
         }
     }
+    function redo(){
+        if(remvedstroke.length==0)
+            return;
+        let arr=remvedstroke[remvedstroke.length-1];
+        singlestroke.push(arr);
+        let a=arr.startx;
+        let b=arr.starty;
+        let c=arr.endx;
+        let d=arr.endy;
+        contextref.current.beginPath();
+        contextref.current.moveTo(a[0],b[0]);
+        for(let i=1;i<c.length;i++)
+            {
+                contextref.current.lineTo(c[i],d[i]);
+                contextref.current.stroke();
+            }
+            contextref.current.closePath();
+        remvedstroke.pop();
+        
+    }
+    function downloadsignaturewithbg()
+    {
+        const d=download.current;
+        contextref.current.globalCompositeOperation='destination-over';
+        contextref.current.fillStyle='White';
+        contextref.current.fillRect(0,0,canva.current.width,canva.current.height);
+        const url=canva.current.toDataURL("image/png");
+        // console.log(url);
+        // console.log(d);
+        d.href=url
+    }
 
     return (
         <div className='w-screen overflow-hidden'>
-            <div className='flex justify-center mt-2 mx-5 gap-2'>
+            <div className='flex justify-center mt-2 mx-5 gap-2 flex-wrap'>
                 <button className='rounded bg-gray-300 w-10 py-1' onClick={clear}>
                     <FontAwesomeIcon icon={faTrash} className='delete' size='lg' />
                 </button>
                 <button className='rounded bg-gray-300 w-10 py-1' onClick={undo}>
                     <FontAwesomeIcon icon={faRotateLeft} className='delete' size='lg' />
+                </button>
+                <button className='rounded bg-gray-300 w-10 py-1' onClick={redo}>
+                <FontAwesomeIcon icon={faRotateRight} className='delete' size='lg' />
+                </button>
+                <button className='rounded bg-gray-300  py-1'>
+                     <a href="#" ref={download} onClick={downloadsignaturewithbg} className='text-black p-1 border-2 border-black border-solid rounded-lg' download>Download sign</a>
                 </button>
             </div>
             <div className='border-2 border-solid border-black mx-4 my-2'>
