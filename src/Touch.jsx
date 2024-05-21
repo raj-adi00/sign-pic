@@ -142,7 +142,7 @@ function Touch() {
                 <FontAwesomeIcon icon={faRotateRight} className='delete' size='lg' />
                 </button>
                 <button className='rounded bg-gray-300  py-1'>
-                     <a href="#" ref={download} onClick={downloadsignaturewithbg} className='text-black p-1 border-2 border-black border-solid rounded-lg' download>Download sign</a>
+                     <a href="#" ref={download} onClick={downloadsignaturewithbg} className='text-black p-1 border-2 border-black border-solid rounded-lg' download="Your signature">Download sign</a>
                 </button>
             </div>
             <div className='border-2 border-solid border-black mx-4 my-2'>
