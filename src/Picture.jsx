@@ -20,6 +20,7 @@ function Picture() {
     useEffect(() => {
      vid.current.style.width=`${videoscreensize}px`;
      vid.current.style.height=`${videoscreensize/2}px;`
+     vid.current.style.maxWidth=`${window.innerWidth}px`
     }, [videoscreensize])
     const getvideo = () => {
         navigator.mediaDevices.getUserMedia({
@@ -63,6 +64,8 @@ function Picture() {
             STREAM.getTracks().map(function (val) {
                 val.stop();
             });
+            vid.current.style.width=`${videoscreensize}px`;
+            vid.current.style.height=`${videoscreensize/2}px;`
         }
     }
     function downloadsignaturewithbg() {
@@ -76,6 +79,7 @@ function Picture() {
         d.href = url
     }
     function changesize() {
+        canva.current.style.maxWidth=`${window.innerWidth}px`
         setsize(sizechange.current.value)
     }
     function changevideosize() {
@@ -98,7 +102,7 @@ function Picture() {
                     <a href="#" ref={download} onClick={downloadsignaturewithbg} className='text-black p-1 border-2 border-black border-solid rounded-lg' download="Your signature">Download Photo</a>
                 </button>
                 <div>
-                    <select name="" id="" className=' border-black border-2 px-2 bg-gray-300' ref={sizechange} onChange={changesize}>
+                    <select name="" id="" className='photosection border-black border-2 px-2 bg-gray-300' ref={sizechange} onChange={changesize}>
                         <option value="314" key={1}>Photo Size</option>
                         {
                             picdim && picdim.map((val) => { return <option value={val} key={val}>{val}</option> })
@@ -115,8 +119,8 @@ function Picture() {
                 </div>
             </div>
             <div className='mx-4 my-2 border-black gap-4 border-2 border-solid m-auto flex flex-wrap justify-around items-center'>
-                <div className='border-2 border-black border-solid m-3 rounded-lg'>
-                    <video ref={vid} src="" width={videoscreensize} className='videoplay'></video>
+                <div className='border-2 border-black border-solid m-3 rounded-lg overflow-hidden' style={{height:videoscreensize/2}}>
+                    <video ref={vid} src="" width={videoscreensize} height={videoscreensize/2} className='videoplay'></video>
                 </div>
                 <div className={'border-2 border-black border-solid m-3 rounded-lg photoarea' + hasphoto ? 'hasPhoto' : ''}>
                     <canvas ref={canva} width={size} height={size} className='photoholder'></canvas>
