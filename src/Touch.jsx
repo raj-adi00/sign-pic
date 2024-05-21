@@ -62,7 +62,7 @@ function Touch() {
         startpositiony = [];
         endpositionx = [];
         endpositiony = [];
-        console.log(singlestroke)
+        // console.log(singlestroke)
     }
     function clear() {
         singlestroke=[];
