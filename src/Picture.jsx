@@ -11,7 +11,8 @@ function Picture() {
     const [hasphoto, sethasphoto] = useState(false);
     const retakeref = useRef(null);
     const [contextref, setcontextref] = useState(null);
-    const [STREAM,setSTREAM]=useState(null);
+    const [STREAM, setSTREAM] = useState(null);
+    const download = useRef(null)
 
     const getvideo = () => {
         navigator.mediaDevices.getUserMedia({
@@ -42,7 +43,7 @@ function Picture() {
         setcontextref(ctx);
     }
     function recapture() {
-        if(contextref===null)
+        if (contextref === null)
             return;
         contextref.clearRect(0, 0, canva.current.width, canva.current.height);
         sethasphoto(false);
@@ -50,12 +51,22 @@ function Picture() {
     function closevideo() {
         recapture();
         let video = vid.current;
-        video.src=''
-        if (STREAM!= null) {
+        video.src = ''
+        if (STREAM != null) {
             STREAM.getTracks().map(function (val) {
-            val.stop();
+                val.stop();
             });
-            }    
+        }
+    }
+    function downloadsignaturewithbg() {
+        if(hasphoto==false)
+            return;
+        const d=download.current;
+        contextref.globalCompositeOperation='destination-over';
+        contextref.fillStyle='White';
+        contextref.fillRect(0,0,canva.current.width,canva.current.height);
+        const url=canva.current.toDataURL("image/png");
+        d.href=url
     }
     return (
         <div>
@@ -64,6 +75,9 @@ function Picture() {
                 <button ref={clickphoto} className=' bg-gray-300 py-1 px-3 border-black border-2 border-solid rounded-lg' onClick={takephoto}>Click photo</button>
                 <button ref={closephoto} className=' bg-gray-300 py-1 px-3 border-black border-2 border-solid rounded-lg' onClick={closevideo}>Close</button>
                 <button ref={retakeref} className=' bg-gray-300 py-1 px-3 border-black border-2 border-solid rounded-lg' onClick={recapture}>Retake</button>
+                <button className='rounded bg-gray-300  py-1'>
+                    <a href="#" ref={download} onClick={downloadsignaturewithbg} className='text-black p-1 border-2 border-black border-solid rounded-lg' download="Your signature">Download Photo</a>
+                </button>
             </div>
             <div className='mx-4 my-2 border-black gap-4 border-2 border-solid m-auto flex flex-wrap justify-around items-center'>
                 <div className='border-2 border-black border-solid m-3 rounded-lg'>
